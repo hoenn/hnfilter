@@ -124,7 +124,7 @@ func GetCommentByID(id string, c *hnapi.HNClient) (*store.Comment, error) {
 	t := time.Unix(s.Time, 0)
 
 	return &store.Comment{
-		By:     s.By,
+		Author: s.By,
 		ID:     s.ID,
 		Parent: s.Parent,
 		Body:   s.Text,
