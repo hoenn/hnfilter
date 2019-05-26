@@ -59,6 +59,7 @@
   input-imports = [
     "github.com/hoenn/go-hn/pkg/hnapi",
     "github.com/lib/pq",
+    "github.com/pkg/errors",
     "gopkg.in/Masterminds/squirrel.v1",
   ]
   solver-name = "gps-cdcl"
