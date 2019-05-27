@@ -28,18 +28,13 @@ func main() {
 	}
 	//For each submitted story get the post
 	var stories []*hnapi.Story
-	x := 0
 	for _, p := range posts {
-		if x > 3 {
-			break
-		}
 		s, err := GetStoryByID(p, client)
 		if err != nil {
 			//Not a story
 			continue
 		}
 		stories = append(stories, s)
-		x++
 	}
 
 	//Filter the stories by title
@@ -51,23 +46,17 @@ func main() {
 	}
 
 	var comments []*store.Comment
-	x = 0
 	for _, s := range filteredStories {
 		for _, c := range s.Kids {
-			if x > 0 {
-				break
-			}
 			cc, err := GetCommentByID(fmt.Sprint(c), client)
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println(cc)
 			comments = append(comments, cc)
-			x++
 		}
 	}
 
-	dbConn := &DBConn{
+	dbConn := &store.DBConn{
 		Username: os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
 		Host:     os.Getenv("DB_HOST"),
@@ -130,23 +119,4 @@ func GetCommentByID(id string, c *hnapi.HNClient) (*store.Comment, error) {
 		Body:   s.Text,
 		Time:   t,
 	}, nil
-}
-
-//DBConn is the required info for a postgres connection string
-type DBConn struct {
-	Username string
-	Password string
-	Host     string
-	Port     string
-	Name     string
-}
-
-//Format converts the string to a postgres conneciton string
-func (d *DBConn) Format() string {
-	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		d.Host,
-		d.Port,
-		d.Username,
-		d.Password,
-		d.Name)
 }
