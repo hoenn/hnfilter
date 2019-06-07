@@ -3,20 +3,14 @@ package cmd
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/hoenn/hnfilter/pkg/store"
 
 	//pg driver
 	_ "github.com/lib/pq"
-	"github.com/mgutz/ansi"
 	"github.com/spf13/cobra"
-)
-
-var (
-	yellow = ansi.ColorFunc("yellow")
-	red    = ansi.ColorFunc("red")
-	green  = ansi.ColorFunc("green")
 )
 
 var (
@@ -52,12 +46,12 @@ var rootCmd = &cobra.Command{
 		}
 		db, err := sql.Open("postgres", dbConn.Format())
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		defer db.Close()
 		err = db.Ping()
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		ds = store.NewDataStore(db)
