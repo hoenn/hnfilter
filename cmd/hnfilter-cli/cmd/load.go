@@ -15,12 +15,12 @@ import (
 )
 
 var (
-	rps int
+	sleep time.Duration
 )
 
 func init() {
 	rootCmd.AddCommand(loadDBCmd)
-	loadDBCmd.Flags().IntVarP(&rps, "rps", "r", 10, "How many requests to make per second")
+	loadDBCmd.Flags().DurationVarP(&sleep, "sleep", "s", time.Second*5, "How long to wait in between requests")
 }
 
 var loadDBCmd = &cobra.Command{
@@ -36,6 +36,7 @@ var loadDBCmd = &cobra.Command{
 		}
 		fs := getUserTitleFilteredPosts(client, u, "Who is hiring?")
 		//For each story, get all comments and bulk load those in database in separate transactions
+		var failedStories []int
 		for _, s := range fs {
 			cs, err := getAllCommentsForStory(client, s)
 			if err != nil {
@@ -47,12 +48,19 @@ var loadDBCmd = &cobra.Command{
 				err := ds.AddComment(context.Background(), c)
 				if err != nil {
 					//IDs that fail can be reinserted from another job or retried
-					log.Print(fmt.Sprintf("Unable to bulk load comments for story ID: %v", s.ID))
+					failedStories = append(failedStories, s.ID)
 				}
 			}
 		}
-
+		for _, f := range failedStories {
+			fmt.Println(f)
+		}
 	},
+}
+
+func writeToFile(ss []int) error {
+	//Write the ids to the file
+	return nil
 }
 
 func getUserTitleFilteredPosts(client *hnapi.HNClient, u *hnapi.HNUser, filterStr string) []*hnapi.Story {
@@ -86,6 +94,7 @@ func getUserTitleFilteredPosts(client *hnapi.HNClient, u *hnapi.HNUser, filterSt
 func getAllCommentsForStory(client *hnapi.HNClient, story *hnapi.Story) ([]*store.Comment, error) {
 	var comments []*store.Comment
 	for _, c := range story.Kids {
+		time.Sleep(sleep)
 		cc, err := getCommentByID(fmt.Sprint(c), client)
 		if err != nil {
 			return nil, err

@@ -7,29 +7,26 @@ import (
 	"github.com/pkg/errors"
 )
 
-// DataStore xyz
+// DataStore wraps a database
 type DataStore struct {
 	db *sql.DB
 }
 
-// NewDataStore xyz
+// NewDataStore returns a datastore
 func NewDataStore(db *sql.DB) *DataStore {
 	return &DataStore{
 		db: db,
 	}
 }
 
-//ErrCouldNotCommitTx xyz
-var ErrCouldNotCommitTx = "could not commit transaction"
+var errCouldNotCommitTx = "could not commit transaction"
+var errFailedStartingTx = "failed starting transaction"
 
-//ErrFailedStartingTx xyz
-var ErrFailedStartingTx = "failed starting transaction"
-
-// AddComment cyz
+// AddComment adds a comment to the datastore
 func (d *DataStore) AddComment(ctx context.Context, c *Comment) error {
 	tx, err := d.db.BeginTx(ctx, nil)
 	if err != nil {
-		return errors.Wrap(err, ErrFailedStartingTx)
+		return errors.Wrap(err, errFailedStartingTx)
 	}
 	_, err = insertComment(c).RunWith(tx).ExecContext(ctx)
 	if err != nil {
@@ -37,16 +34,16 @@ func (d *DataStore) AddComment(ctx context.Context, c *Comment) error {
 	}
 	err = tx.Commit()
 	if err != nil {
-		return errors.Wrap(err, ErrCouldNotCommitTx)
+		return errors.Wrap(err, errCouldNotCommitTx)
 	}
 	return nil
 }
 
-// GetComment xyz
+// GetComment returns a comment from the datastore by id
 func (d *DataStore) GetComment(ctx context.Context, id int) (*Comment, error) {
 	tx, err := d.db.BeginTx(ctx, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, ErrFailedStartingTx)
+		return nil, errors.Wrap(err, errFailedStartingTx)
 	}
 
 	var c *Comment
@@ -67,8 +64,14 @@ func (d *DataStore) GetComment(ctx context.Context, id int) (*Comment, error) {
 	}
 	err = tx.Commit()
 	if err != nil {
-		return nil, errors.Wrap(err, ErrCouldNotCommitTx)
+		return nil, errors.Wrap(err, errCouldNotCommitTx)
 	}
 
 	return c, nil
+}
+
+//GetSearchResults TODO
+func (d *DataStore) GetSearchResults(ctx context.Context, search string) error {
+	//TODO Implement this function
+	return nil
 }

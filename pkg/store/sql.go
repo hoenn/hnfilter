@@ -41,3 +41,14 @@ func getComment(id int) sq.SelectBuilder {
 		},
 	)
 }
+
+func searchText(search string) sq.SelectBuilder {
+	return psql.Select(
+		commentsCols...,
+	).From(
+		"comments",
+	).Where(
+		fmt.Printf("tsv @@ plainto_tsquery(%s)", search),
+	)
+
+}

@@ -28,7 +28,7 @@ func init() {
 	rootCmd.MarkFlagRequired("dbuser")
 	rootCmd.Flags().StringVarP(&dbPass, "dbpass", "p", "", "postgres database password")
 	rootCmd.MarkFlagRequired("dbpass")
-	rootCmd.Flags().StringVarP(&dbHost, "dbhost", "h", "", "postgres database host")
+	rootCmd.Flags().StringVarP(&dbHost, "dbhost", "z", "", "postgres database host")
 	rootCmd.MarkFlagRequired("dbhost")
 	rootCmd.Flags().StringVarP(&dbPort, "dbport", "P", "", "postgres database port")
 	rootCmd.MarkFlagRequired("dbport")
