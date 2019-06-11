@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// DataStore wraps a database
+// DataStore wraps a database and implements Store interface
 type DataStore struct {
 	db *sql.DB
 }
