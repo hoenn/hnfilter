@@ -2,6 +2,7 @@ package store
 
 import (
 	"fmt"
+	"html"
 
 	sq "gopkg.in/Masterminds/squirrel.v1"
 )
@@ -25,7 +26,7 @@ func insertComment(c *Comment) sq.InsertBuilder {
 		c.Author,
 		c.ID,
 		c.Parent,
-		c.Body,
+		html.UnescapeString(c.Body),
 		c.Time,
 	)
 }
