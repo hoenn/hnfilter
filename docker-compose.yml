@@ -2,12 +2,13 @@ version: '3.3'
 services:
   pg:
     image: postgres:10.7
+    restart: always
     environment: 
       POSTGRES_DB: 'hndb'
       POSTGRES_USER: 'filter'
       POSTGRES_PASSWORD: 'sekret'
     volumes:
-      - ./structure.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./structure.sql:/docker-entrypoint-initdb.d/structure.sql
     ports:
       - '5432:5432'
     expose:

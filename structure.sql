@@ -1,10 +1,9 @@
 --
 -- PostgreSQL database dump
--- pg_dump -s hndb
 --
 
--- Dumped from database version 10.7 (Debian 10.7-1.pgdg90+1)
--- Dumped by pg_dump version 10.7 (Ubuntu 10.7-0ubuntu0.18.04.1)
+-- Dumped from database version 10.8
+-- Dumped by pg_dump version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -13,6 +12,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -35,8 +35,10 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: comments; Type: TABLE; Schema: public; Owner: filter
+-- Name: comments; Type: TABLE; Schema: public; Owner: doadmin
 --
+
+CREATE ROLE doadmin superuser;
 
 CREATE TABLE public.comments (
     author character varying(255),
@@ -49,10 +51,10 @@ CREATE TABLE public.comments (
 );
 
 
-ALTER TABLE public.comments OWNER TO filter;
+ALTER TABLE public.comments OWNER TO doadmin;
 
 --
--- Name: comments comments_pkey; Type: CONSTRAINT; Schema: public; Owner: filter
+-- Name: comments comments_pkey; Type: CONSTRAINT; Schema: public; Owner: doadmin
 --
 
 ALTER TABLE ONLY public.comments
@@ -60,10 +62,17 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- Name: idx_comments_tsv; Type: INDEX; Schema: public; Owner: filter
+-- Name: idx_comments_tsv; Type: INDEX; Schema: public; Owner: doadmin
 --
 
 CREATE INDEX idx_comments_tsv ON public.comments USING gin (tsv);
+
+
+--
+-- Name: comments tsvectorupdate; Type: TRIGGER; Schema: public; Owner: doadmin
+--
+
+CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE ON public.comments FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('tsv', 'pg_catalog.english', 'body');
 
 
 --
