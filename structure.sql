@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 10.8
--- Dumped by pg_dump version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 11.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -12,23 +12,28 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
-SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
---
 
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
+CREATE ROLE doadmin superuser;
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: tsv_update_trigger(); Type: FUNCTION; Schema: public; Owner: doadmin
 --
 
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+CREATE FUNCTION public.tsv_update_trigger() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$  
+begin  
+  new.tsv :=
+     setweight(to_tsvector(new.body), 'A');
+  return new;
+end  
+$$;
 
+
+ALTER FUNCTION public.tsv_update_trigger() OWNER TO doadmin;
 
 SET default_tablespace = '';
 
@@ -37,8 +42,6 @@ SET default_with_oids = false;
 --
 -- Name: comments; Type: TABLE; Schema: public; Owner: doadmin
 --
-
-CREATE ROLE doadmin superuser;
 
 CREATE TABLE public.comments (
     author character varying(255),
@@ -69,10 +72,10 @@ CREATE INDEX idx_comments_tsv ON public.comments USING gin (tsv);
 
 
 --
--- Name: comments tsvectorupdate; Type: TRIGGER; Schema: public; Owner: doadmin
+-- Name: comments update_tsv; Type: TRIGGER; Schema: public; Owner: doadmin
 --
 
-CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE ON public.comments FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('tsv', 'pg_catalog.english', 'body');
+CREATE TRIGGER update_tsv BEFORE INSERT OR UPDATE ON public.comments FOR EACH ROW EXECUTE PROCEDURE public.tsv_update_trigger();
 
 
 --
