@@ -15,7 +15,7 @@ services:
       - '5432'
 
   hnfilter:
-    image: golang:1.12
+    image: debian:stretch
     command: ["/wait-for-it.sh", "pg:5432","--", "/bin/hnfilter-server"]
     environment:
       DB_PASSWORD: "sekret"
